@@ -4,3 +4,7 @@ tasks:
   generate:
     cmds:
       - protoc --proto_path=api/vrabber-protobuf/proto --go_out=gen --go-grpc_out=gen --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative client/client.proto
+  run:
+    dotenv: ['.env']
+    cmds:
+      - go run ./cmd/client/main.go
