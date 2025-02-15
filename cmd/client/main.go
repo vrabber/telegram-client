@@ -10,16 +10,13 @@ import (
 	"github.com/bonefabric/vrabber-client-telegram/internal/config"
 	"github.com/bonefabric/vrabber-client-telegram/internal/telegram"
 	"github.com/bonefabric/vrabber-client-telegram/internal/vrabber"
+	"github.com/bonefabric/vrabber-client-telegram/setup"
 	"golang.org/x/sync/errgroup"
 )
 
-func init() {
-	//TODO fix
-	slog.SetLogLoggerLevel(slog.LevelDebug)
-}
-
 func main() {
 	cfg := config.MustLoad()
+	setup.ConfigureLogLevel(cfg.LogLevel)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()

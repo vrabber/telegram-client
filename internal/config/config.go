@@ -10,6 +10,7 @@ type Config struct {
 	ServerPort      int    `envconfig:"VRABBER_PORT" required:"true"`
 	MessagesBuffer  int    `envconfig:"MESSAGES_BUFFER" default:"100"`
 	ResponsesBuffer int    `envconfig:"RESPONSES_BUFFER" default:"100"`
+	LogLevel        string `envconfig:"LOG_LEVEL" default:"INFO"`
 }
 
 func MustLoad() *Config {
