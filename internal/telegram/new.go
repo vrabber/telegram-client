@@ -12,7 +12,6 @@ func NewClient(ctx context.Context, token string, in <-chan *pb.DownloadStatusRe
 	//todo move buffer size to config
 	client := &Client{
 		ctx: ctx,
-		bot: nil,
 		in:  in,
 		out: out,
 	}
