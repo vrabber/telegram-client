@@ -66,10 +66,10 @@ func (c *Client) Start() error {
 		for {
 			in, err := stream.Recv()
 			if err != nil {
-				if err == io.EOF {
-					break
+				if err != io.EOF {
+					slog.Error("failed to receive from grpc stream", "err", err)
 				}
-				slog.Error("failed to receive from grpc stream", "err", err)
+				break
 			}
 			c.out <- in
 		}
