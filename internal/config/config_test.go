@@ -1,46 +1,267 @@
 package config
 
 import (
-	"github.com/stretchr/testify/assert"
-	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+const (
+	KeyTgToken         = "TG_TOKEN"
+	KeyVrabberHost     = "VRABBER_HOST"
+	KeyVrabberPort     = "VRABBER_PORT"
+	KeyMessagesBuffer  = "MESSAGES_BUFFER"
+	KeyResponsesBuffer = "RESPONSES_BUFFER"
 )
 
 func TestLoad(t *testing.T) {
 	cases := []struct {
-		name        string
-		token       string
-		vrabberHost string
-		vrabberPort string
-		mustPanic   bool
+		name      string
+		mustPanic bool
+		vars      map[string]string
 	}{
 		{
-			name:        "correct",
-			token:       "test_token",
-			vrabberHost: "localhost",
-			vrabberPort: "9090",
-			mustPanic:   false,
+			name:      "all filled",
+			mustPanic: false,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "testhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
 		},
 		{
-			name:        "empty token",
-			token:       "",
-			vrabberHost: "localhost",
-			vrabberPort: "9090",
-			mustPanic:   true,
+			name:      "minimum fields filled",
+			mustPanic: false,
+			vars: map[string]string{
+				KeyTgToken:     "TG_TOKEN",
+				KeyVrabberPort: "8080",
+			},
 		},
 		{
-			name:        "incorrect port",
-			token:       "test_token",
-			vrabberHost: "localhost",
-			vrabberPort: "-10",
+			name:      "empty token",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "no token",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name: "no vrabber host",
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "empty vrabber host",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "incorrect vrabber port",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "test",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "empty vrabber port",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "vrabber port too big",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "65536",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "vrabber port too small",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "0",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "vrabber port negative",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "-1",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "incorrect messages buffer",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "test",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "empty messages buffer",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "messages buffer too big",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "20001",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "messages buffer too small",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "0",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "messages buffer negative",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "-1",
+				KeyResponsesBuffer: "200",
+			},
+		},
+		{
+			name:      "incorrect responses buffer",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "test",
+			},
+		},
+		{
+			name:      "empty responses buffer",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "",
+			},
+		},
+		{
+			name:      "responses buffer too big",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "2001",
+			},
+		},
+		{
+			name:      "responses buffer too small",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "0",
+			},
+		},
+		{
+			name:      "responses buffer negative",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:         "TG_TOKEN",
+				KeyVrabberHost:     "localhost",
+				KeyVrabberPort:     "8080",
+				KeyMessagesBuffer:  "200",
+				KeyResponsesBuffer: "-1",
+			},
 		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			t.Setenv("TG_TOKEN", c.token)
-			t.Setenv("VRABBER_HOST", c.vrabberHost)
-			t.Setenv("VRABBER_PORT", c.vrabberPort)
+			vars := []string{
+				KeyTgToken,
+				KeyVrabberHost,
+				KeyVrabberPort,
+				KeyMessagesBuffer,
+				KeyResponsesBuffer,
+			}
+
+			for _, v := range vars {
+				if val, exists := c.vars[v]; exists {
+					t.Setenv(v, val)
+				}
+			}
 
 			defer func() {
 				err := recover()
@@ -53,14 +274,17 @@ func TestLoad(t *testing.T) {
 			}()
 
 			conf := MustLoad()
-			assert.NotNil(t, c)
+			assert.NotNil(t, conf)
 
-			assert.Equal(t, c.token, conf.TgToken)
-			assert.Equal(t, c.vrabberHost, conf.ServerHost)
-
-			p, err := strconv.Atoi(c.vrabberPort)
-			assert.Nil(t, err)
-			assert.Equal(t, p, conf.ServerPort)
+			if _, exists := c.vars[KeyVrabberHost]; !exists {
+				assert.Equal(t, conf.ServerHost, "localhost")
+			}
+			if _, exists := c.vars[KeyMessagesBuffer]; !exists {
+				assert.Equal(t, conf.MessagesBuffer, 100)
+			}
+			if _, exists := c.vars[KeyResponsesBuffer]; !exists {
+				assert.Equal(t, conf.ResponsesBuffer, 100)
+			}
 		})
 	}
 }
