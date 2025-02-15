@@ -16,7 +16,7 @@ type Client struct {
 	out chan<- *pb.StartDownloadRequest
 }
 
-func (c *Client) Start() error {
+func (c *Client) Listen() error {
 	go c.listenInput()
 	c.bot.Start(c.ctx)
 	return nil
@@ -34,6 +34,10 @@ func (c *Client) handler(ctx context.Context, b *bot.Bot, update *models.Update)
 			RequestId: update.Message.Chat.ID,
 		}
 	}
+}
+
+func (c *Client) Setup() error {
+	return c.setupCommands()
 }
 
 // todo request id used as client id, change this in future. Only dev feature for testing

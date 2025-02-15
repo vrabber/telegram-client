@@ -31,8 +31,13 @@ func main() {
 
 	cn := vrabber.NewClient(ctx, cfg.ServerHost, cfg.ServerPort, req, resp)
 
+	if err = client.Setup(); err != nil {
+		slog.Error("failed to setup telegram client", "err", err)
+		return
+	}
+
 	eg := &errgroup.Group{}
-	eg.Go(client.Start)
+	eg.Go(client.Listen)
 	eg.Go(cn.Start)
 
 	if err = eg.Wait(); err != nil {
