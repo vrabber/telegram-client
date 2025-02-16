@@ -21,19 +21,19 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	req, resp := make(chan *pb.StartDownloadRequest, cfg.MessagesBuffer), make(chan *pb.DownloadStatusResponse, cfg.MessagesBuffer)
+	req := make(chan *pb.StartDownloadRequest, cfg.MessagesBuffer)
+	resp := make(chan *pb.DownloadStatusResponse, cfg.MessagesBuffer)
 
 	client, err := telegram.NewClient(ctx, cfg.TgToken, resp, req)
 	if err != nil {
 		slog.Error("failed to create telegram client", "err", err)
-		return
+		panic(err)
 	}
 
 	cn := vrabber.NewClient(ctx, cfg.ServerHost, cfg.ServerPort, req, resp)
-
 	if err = client.Setup(); err != nil {
 		slog.Error("failed to setup telegram client", "err", err)
-		return
+		panic(err)
 	}
 
 	eg := &errgroup.Group{}
@@ -42,6 +42,7 @@ func main() {
 
 	if err = eg.Wait(); err != nil {
 		slog.Error("application exited with error", "err", err)
+		panic(err)
 	} else {
 		slog.Info("application exited without errors")
 	}
