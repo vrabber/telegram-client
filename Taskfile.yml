@@ -8,3 +8,6 @@ tasks:
     dotenv: ['.env']
     cmds:
       - go run ./cmd/client/main.go
+  update:
+    cmds:
+      - git submodule update --remote --rebase --recursive
