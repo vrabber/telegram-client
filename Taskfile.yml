@@ -11,3 +11,6 @@ tasks:
   update:
     cmds:
       - git submodule update --remote --rebase --recursive
+  compose:
+    cmds:
+      - docker compose -f deploy/docker-compose.yml --env-file ./.env {{.CLI_ARGS}}
