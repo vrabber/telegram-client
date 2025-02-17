@@ -1,4 +1,4 @@
-module github.com/bonefabric/vrabber-client-telegram
+module github.com/vrabber/telegram-client
 
 go 1.23
 

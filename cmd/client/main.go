@@ -6,11 +6,11 @@ import (
 	"os"
 	"os/signal"
 
-	pb "github.com/bonefabric/vrabber-client-telegram/gen/client"
-	"github.com/bonefabric/vrabber-client-telegram/internal/config"
-	"github.com/bonefabric/vrabber-client-telegram/internal/telegram"
-	"github.com/bonefabric/vrabber-client-telegram/internal/vrabber"
-	"github.com/bonefabric/vrabber-client-telegram/setup"
+	pb "github.com/vrabber/telegram-client/gen/client"
+	"github.com/vrabber/telegram-client/internal/config"
+	"github.com/vrabber/telegram-client/internal/telegram"
+	"github.com/vrabber/telegram-client/internal/vrabber"
+	"github.com/vrabber/telegram-client/setup"
 	"golang.org/x/sync/errgroup"
 )
 

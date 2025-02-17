@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	pb "github.com/bonefabric/vrabber-client-telegram/gen/client"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	pb "github.com/vrabber/telegram-client/gen/client"
 )
 
 type Client struct {

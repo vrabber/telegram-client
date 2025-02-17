@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/bonefabric/vrabber-client-telegram/gen/client"
 	"github.com/go-telegram/bot"
+	pb "github.com/vrabber/telegram-client/gen/client"
 )
 
 func NewClient(ctx context.Context, token string, in <-chan *pb.DownloadStatusResponse, out chan<- *pb.StartDownloadRequest) (*Client, error) {

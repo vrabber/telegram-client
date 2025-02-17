@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync"
 
-	pb "github.com/bonefabric/vrabber-client-telegram/gen/client"
+	pb "github.com/vrabber/telegram-client/gen/client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
