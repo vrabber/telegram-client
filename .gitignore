@@ -2,3 +2,4 @@
 gen/**/*
 !gen/.gitkeep
 .env
+tmp/
