@@ -1,7 +1,6 @@
 package vrabber
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -15,27 +14,17 @@ import (
 
 type Client struct {
 	pb.UnimplementedDownloadServiceServer
-	host string
-	port int
-	ctx  context.Context
-	in   <-chan *pb.StartDownloadRequest
-	out  chan<- *pb.DownloadStatusResponse
+	opts Opts
 }
 
-func NewClient(ctx context.Context, host string, port int, in <-chan *pb.StartDownloadRequest, out chan<- *pb.DownloadStatusResponse) *Client {
-	return &Client{
-		host: host,
-		port: port,
-		ctx:  ctx,
-		in:   in,
-		out:  out,
-	}
+func NewClient(opts Opts) *Client {
+	return &Client{opts: opts}
 }
 
 func (c *Client) Start() error {
-	defer close(c.out)
+	defer close(c.opts.Out)
 
-	conn, err := grpc.NewClient(c.host+":"+strconv.Itoa(c.port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(c.opts.Host+":"+strconv.Itoa(c.opts.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to create grpc client: %v", err)
 	}
@@ -47,7 +36,7 @@ func (c *Client) Start() error {
 
 	cl := pb.NewDownloadServiceClient(conn)
 
-	stream, err := cl.DownloadVideo(c.ctx)
+	stream, err := cl.DownloadVideo(c.opts.Ctx)
 	if err != nil {
 		return fmt.Errorf("failed to download video: %v", err)
 	}
@@ -71,7 +60,7 @@ func (c *Client) Start() error {
 				}
 				break
 			}
-			c.out <- in
+			c.opts.Out <- in
 		}
 	}()
 
@@ -79,7 +68,7 @@ func (c *Client) Start() error {
 	go func() {
 		defer wg.Done()
 
-		for m := range c.in {
+		for m := range c.opts.In {
 			if err := stream.Send(m); err != nil {
 				slog.Error("failed to send to grpc stream", "err", err)
 				return

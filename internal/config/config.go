@@ -8,6 +8,7 @@ type Config struct {
 	TgToken         string `envconfig:"TG_TOKEN" required:"true"`
 	ServerHost      string `envconfig:"VRABBER_HOST" default:"localhost"`
 	ServerPort      int    `envconfig:"VRABBER_PORT" required:"true"`
+	ServerTimeout   int    `envconfig:"VRABBER_TIMEOUT" default:"1"`
 	MessagesBuffer  int    `envconfig:"MESSAGES_BUFFER" default:"100"`
 	ResponsesBuffer int    `envconfig:"RESPONSES_BUFFER" default:"100"`
 	LogLevel        string `envconfig:"LOG_LEVEL" default:"INFO"`
@@ -25,6 +26,9 @@ func MustLoad() *Config {
 	}
 	if config.ServerPort < 1 || config.ServerPort > 65535 {
 		panic("VRABBER_PORT env variable must be between 1 and 65535")
+	}
+	if config.ServerTimeout < 1 || config.ServerTimeout > 1000 {
+		panic("VRABBER_TIMEOUT env variable must be between 1 and 1000")
 	}
 	if config.MessagesBuffer < 1 || config.MessagesBuffer > 1000 {
 		panic("MESSAGES_BUFFER env variable must be between 1 and 1000")

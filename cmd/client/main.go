@@ -30,7 +30,13 @@ func main() {
 		panic(err)
 	}
 
-	cn := vrabber.NewClient(ctx, cfg.ServerHost, cfg.ServerPort, req, resp)
+	cn := vrabber.NewClient(vrabber.Opts{
+		Ctx:  ctx,
+		Host: cfg.ServerHost,
+		Port: cfg.ServerPort,
+		In:   req,
+		Out:  resp,
+	})
 	if err = client.Setup(); err != nil {
 		slog.Error("failed to setup telegram client", "err", err)
 		panic(err)

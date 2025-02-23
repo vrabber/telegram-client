@@ -10,6 +10,7 @@ const (
 	KeyTgToken         = "TG_TOKEN"
 	KeyVrabberHost     = "VRABBER_HOST"
 	KeyVrabberPort     = "VRABBER_PORT"
+	KeyVrabberTimout   = "VRABBER_TIMEOUT"
 	KeyMessagesBuffer  = "MESSAGES_BUFFER"
 	KeyResponsesBuffer = "RESPONSES_BUFFER"
 )
@@ -29,6 +30,7 @@ func TestLoad(t *testing.T) {
 				KeyVrabberPort:     "8080",
 				KeyMessagesBuffer:  "200",
 				KeyResponsesBuffer: "200",
+				KeyVrabberTimout:   "1",
 			},
 		},
 		{
@@ -245,6 +247,51 @@ func TestLoad(t *testing.T) {
 				KeyResponsesBuffer: "-1",
 			},
 		},
+		{
+			name:      "incorrect server timeout",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:       "TG_TOKEN",
+				KeyVrabberPort:   "8080",
+				KeyVrabberTimout: "test",
+			},
+		},
+		{
+			name:      "empty server timeout",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:       "TG_TOKEN",
+				KeyVrabberPort:   "8080",
+				KeyVrabberTimout: "",
+			},
+		},
+		{
+			name:      "server timeout too big",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:       "TG_TOKEN",
+				KeyVrabberPort:   "8080",
+				KeyVrabberTimout: "2001",
+			},
+		},
+		{
+			name:      "server timeout too small",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:       "TG_TOKEN",
+				KeyVrabberPort:   "8080",
+				KeyVrabberTimout: "0",
+			},
+		},
+		{
+			name:      "server timeout negative",
+			mustPanic: true,
+			vars: map[string]string{
+				KeyTgToken:       "TG_TOKEN",
+				KeyVrabberPort:   "8080",
+				KeyVrabberTimout: "-1",
+			},
+		},
 	}
 
 	for _, c := range cases {
@@ -255,6 +302,7 @@ func TestLoad(t *testing.T) {
 				KeyVrabberPort,
 				KeyMessagesBuffer,
 				KeyResponsesBuffer,
+				KeyVrabberTimout,
 			}
 
 			for _, v := range vars {
