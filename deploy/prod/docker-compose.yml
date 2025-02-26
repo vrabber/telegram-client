@@ -12,6 +12,7 @@ services:
 
 networks:
   vrabber:
+    external: true
 
 #  postgres:
 #    build:
