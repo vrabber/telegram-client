@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy telegram client
 on:
   push:
     branches:
