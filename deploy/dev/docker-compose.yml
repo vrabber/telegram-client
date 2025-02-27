@@ -14,80 +14,76 @@ services:
     networks:
       - dev-vrabber
     restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    build:
+      context: ../../.
+      dockerfile: deploy/dev/postgres/Dockerfile
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${DB_LOCAL_PORT}:5432
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    networks:
+      - dev-vrabber
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    build:
+      context: ../../.
+      dockerfile: deploy/dev/pgadmin/Dockerfile
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - ${PGADMIN_LOCAL_PORT}:80
+    volumes:
+      - pgadmin-data-dev:/var/lib/pgadmin
+    networks:
+      - dev-vrabber
+    healthcheck:
+      test: [ "CMD", "wget", "-O", "-", "http://localhost:80/misc/ping" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  liquibase:
+    build:
+      context: ../../.
+      dockerfile: deploy/dev/liquibase/Dockerfile
+    environment:
+      LIQUIBASE_COMMAND_USERNAME: ${DB_USER}
+      LIQUIBASE_COMMAND_PASSWORD: ${DB_PASS}
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.sql
+    volumes:
+      - ../../migrations/changelog.sql:/liquibase/changelog.sql
+    networks:
+      - dev-vrabber
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   dev-vrabber:
     external: true
 
-#  postgres:
-#    build:
-#      context: ./postgres
-#    environment:
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_PASSWORD: ${DB_PASS}
-#      POSTGRES_DB: ${DB_NAME}
-#    ports:
-#      - ${DB_LOCAL_PORT}:5432
-#    volumes:
-#      - postgres-data-dev:/var/lib/postgresql/data
-#    networks:
-#      - vrabber-dev
-#    deploy:
-#      resources:
-#        limits:
-#          memory: 512M
-#    healthcheck:
-#      test: [ "CMD", "pg_isready" ]
-#      interval: 5s
-#      timeout: 10s
-#      retries: 5
-#    restart: unless-stopped
-#
-#  pgadmin:
-#    build:
-#      context: ./pgadmin
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-#    ports:
-#      - ${PGADMIN_LOCAL_PORT}:80
-#    volumes:
-#      - pgadmin-data-dev:/var/lib/pgadmin
-#    networks:
-#      - vrabber-dev
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.5"
-#          memory: 512M
-#    healthcheck:
-#      test: [ "CMD", "wget", "-O", "-", "http://localhost:80/misc/ping" ]
-#      interval: 10s
-#      timeout: 10s
-#      retries: 5
-#    restart: unless-stopped
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#
-#  liquibase:
-#    build:
-#      context: ./liquibase
-#    environment:
-#      LIQUIBASE_COMMAND_USERNAME: ${DB_USER}
-#      LIQUIBASE_COMMAND_PASSWORD: ${DB_PASS}
-#      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
-#      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.sql
-#    volumes:
-#      - ../migrations/changelog.sql:/liquibase/changelog.sql
-#    networks:
-#      - vrabber-dev
-#    restart: on-failure
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#
-#volumes:
-#  postgres-data-dev:
-#  pgadmin-data-dev:
-#
+volumes:
+  postgres-data-dev:
+  pgadmin-data-dev:
